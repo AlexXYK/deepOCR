@@ -1,0 +1,13 @@
+torch==2.6.0
+transformers==4.46.3
+tokenizers==0.20.3
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+Pillow==10.1.0
+PyMuPDF==1.23.8
+einops
+addict
+easydict
+flash-attn==2.7.3
+
