@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel
 
 # Set working directory
 WORKDIR /app
@@ -7,13 +7,17 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     git \
     build-essential \
+    ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy requirements and remove flash-attn (will install separately)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN grep -v "flash-attn" requirements.txt > requirements_temp.txt && \
+    pip install --no-cache-dir -r requirements_temp.txt && \
+    rm requirements_temp.txt
 
-# Install flash-attn separately with special handling
+# Install flash-attn with proper CUDA setup
+ENV CUDA_HOME=/usr/local/cuda
 RUN pip install flash-attn==2.7.3 --no-build-isolation
 
 # Copy application code
