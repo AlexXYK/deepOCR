@@ -3,13 +3,13 @@ FastAPI application for DeepSeek OCR API.
 """
 import os
 from typing import Optional
-from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
+from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks, Query
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import io
 from app.pdf_processor import pdf_to_images
-from app.ocr_service import OCRService
+from app.ocr_service import OCRService, OCRMode, PromptType
 
 # Set CUDA device (use first GPU only)
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -70,7 +70,10 @@ async def health_check():
 @app.post("/ocr")
 async def process_ocr(
     file: UploadFile = File(...),
-    background_tasks: BackgroundTasks = None
+    background_tasks: BackgroundTasks = None,
+    prompt: Optional[str] = Query(None, description="Custom prompt (overrides prompt_type)"),
+    prompt_type: Optional[PromptType] = Query(PromptType.DOCUMENT, description="Predefined prompt type: document, free_ocr, figures, describe, other"),
+    mode: Optional[OCRMode] = Query(OCRMode.GUNDAM, description="OCR mode: tiny, small, base, large, gundam")
 ):
     """
     Process OCR on uploaded image or PDF file.
@@ -78,6 +81,9 @@ async def process_ocr(
     Args:
         file: Uploaded file (image or PDF)
         background_tasks: Background tasks (unused but required by FastAPI)
+        prompt: Custom prompt template (overrides prompt_type)
+        prompt_type: Predefined prompt type (document, free_ocr, figures, describe, other)
+        mode: OCR mode configuration (tiny, small, base, large, gundam)
         
     Returns:
         JSON response with extracted text in markdown format
@@ -104,10 +110,15 @@ async def process_ocr(
         # Ensure model is loaded
         ensure_model_loaded()
         
-        # Process all pages
+        # Process all pages with specified parameters
         results = []
         for img, page_num in images:
-            text = ocr_service.process_image(img)
+            text = ocr_service.process_image(
+                img, 
+                prompt=prompt,
+                prompt_type=prompt_type,
+                mode=mode
+            )
             results.append({
                 "page": page_num,
                 "text": text
@@ -120,7 +131,9 @@ async def process_ocr(
             "status": "success",
             "pages": num_pages,
             "text": combined_text,
-            "file_type": file_extension or "unknown"
+            "file_type": file_extension or "unknown",
+            "mode": mode.value,
+            "prompt_type": prompt_type.value if prompt_type else "custom"
         }
         
     except Exception as e:
