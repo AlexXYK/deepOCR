@@ -11,8 +11,7 @@ import io
 from app.pdf_processor import pdf_to_images
 from app.ocr_service import OCRService, OCRMode, PromptType
 
-# Set CUDA device (use first GPU only)
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# Respect external CUDA configuration (no hardcoded CUDA_VISIBLE_DEVICES)
 
 app = FastAPI(
     title="DeepSeek OCR API",
