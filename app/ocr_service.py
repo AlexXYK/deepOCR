@@ -9,7 +9,6 @@ from PIL import Image
 from typing import List, Tuple, Optional
 from enum import Enum
 from vllm import LLM, SamplingParams
-from vllm.model_executor.models.deepseek_ocr import NGramPerReqLogitsProcessor
 try:
     from bs4 import BeautifulSoup
     BEAUTIFUL_SOUP_AVAILABLE = True
@@ -238,7 +237,7 @@ class OCRService:
             model=self.model_name,
             enable_prefix_caching=False,
             mm_processor_cache_gb=0,
-            logits_processors=[NGramPerReqLogitsProcessor]
+            trust_remote_code=True
         )
         print("vLLM initialized successfully")
     
@@ -287,11 +286,6 @@ class OCRService:
         sampling_params = SamplingParams(
             temperature=0.0,
             max_tokens=8192,
-            extra_args=dict(
-                ngram_size=30,
-                window_size=90,
-                whitelist_token_ids={128821, 128822},  # <td>, </td>
-            ),
             skip_special_tokens=False,
         )
         
