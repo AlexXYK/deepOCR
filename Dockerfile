@@ -16,8 +16,8 @@ RUN grep -v "flash-attn" requirements.txt | grep -v "vllm" | grep -v "^--" > req
     pip install --no-cache-dir -r requirements_temp.txt && \
     rm requirements_temp.txt
 
-# Install vLLM nightly for DeepSeek-OCR support - MUST use -U to get actual nightly!
-RUN pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
+# Install vLLM from GitHub source for DeepSeek-OCR support (not in stable yet)
+RUN pip install --no-cache-dir git+https://github.com/vllm-project/vllm.git
 
 # Install flash-attn with proper CUDA setup
 ENV CUDA_HOME=/usr/local/cuda
