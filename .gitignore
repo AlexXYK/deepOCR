@@ -60,3 +60,4 @@ cache/
 test_images/
 test_pdfs/
 
+*.tar
