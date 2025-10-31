@@ -10,11 +10,14 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and remove flash-attn (will install separately)
+# Copy requirements and remove flash-attn and vllm (will install separately)
 COPY requirements.txt .
-RUN grep -v "flash-attn" requirements.txt > requirements_temp.txt && \
+RUN grep -v "flash-attn" requirements.txt | grep -v "vllm" | grep -v "^--" > requirements_temp.txt && \
     pip install --no-cache-dir -r requirements_temp.txt && \
     rm requirements_temp.txt
+
+# Install vLLM nightly for DeepSeek-OCR support
+RUN pip install --no-cache-dir -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
 
 # Install flash-attn with proper CUDA setup
 ENV CUDA_HOME=/usr/local/cuda

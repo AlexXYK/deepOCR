@@ -1,6 +1,7 @@
 torch==2.6.0
 torchvision==0.21.0
 torchaudio==2.6.0
+transformers>=4.51.1
 tokenizers>=0.21.1
 fastapi>=0.115.0
 uvicorn[standard]==0.24.0
@@ -12,9 +13,9 @@ addict
 easydict
 beautifulsoup4
 matplotlib
-transformers>=4.51.1
 flash-attn==2.7.3
-# Use nightly vllm for DeepSeek-OCR support (0.11.1+)
+# vLLM nightly for DeepSeek-OCR support
+--pre
 --extra-index-url https://wheels.vllm.ai/nightly
 vllm
 
