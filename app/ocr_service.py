@@ -233,11 +233,16 @@ class OCRService:
             return  # Already loaded
         
         print(f"Loading DeepSeek-OCR vLLM on {self.device}...")
+        
+        # Initialize vLLM with DeepSeek-OCR specific configuration
+        # Note: vLLM should automatically register NGramPerReqLogitsProcessor for DeepSeek-OCR
         self.llm = LLM(
             model=self.model_name,
             enable_prefix_caching=False,
             mm_processor_cache_gb=0,
-            trust_remote_code=True
+            trust_remote_code=True,
+            gpu_memory_utilization=0.9,  # Use 90% of GPU memory
+            max_model_len=8192,
         )
         print("vLLM initialized successfully")
     
@@ -283,6 +288,9 @@ class OCRService:
             "prompt": prompt,
             "multi_modal_data": {"image": image}
         }
+        
+        # DeepSeek-OCR sampling configuration
+        # NGram parameters are handled by the registered logits processor
         sampling_params = SamplingParams(
             temperature=0.0,
             max_tokens=8192,

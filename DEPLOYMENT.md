@@ -196,6 +196,7 @@ nvidia-smi
 
 ### Update Service
 
+#### Quick Update (Pull from DockerHub)
 ```bash
 # Pull latest image
 docker pull alexxyk/deepocr:latest
@@ -204,6 +205,48 @@ docker pull alexxyk/deepocr:latest
 docker-compose restart
 # or
 docker restart deepseek-ocr
+```
+
+#### Build and Deploy New Version (After Code Changes)
+
+If you've made changes to the code and need to rebuild:
+
+```bash
+# 1. Navigate to the project directory
+cd /path/to/deepOCR
+
+# 2. Pull latest changes (if using git)
+git pull origin main
+
+# 3. Build new Docker image
+docker build -t alexxyk/deepocr:latest .
+
+# 4. Stop and remove old container
+docker-compose down
+
+# 5. Start with new image
+docker-compose up -d
+
+# 6. Monitor startup
+docker-compose logs -f deepseek-ocr
+```
+
+Or if you want to push to DockerHub:
+
+```bash
+# Build and tag
+docker build -t alexxyk/deepocr:latest .
+
+# Login to DockerHub
+docker login
+
+# Push to registry
+docker push alexxyk/deepocr:latest
+
+# On the server, pull and restart
+docker pull alexxyk/deepocr:latest
+docker-compose down
+docker-compose up -d
 ```
 
 ## Monitoring
