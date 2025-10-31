@@ -13,10 +13,13 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements and remove flash-attn and vllm (will install separately)
 COPY requirements.txt .
 
-# Install base dependencies (skip flash-attn for separate install)
-RUN grep -v "flash-attn" requirements.txt > requirements_temp.txt && \
+# Install base dependencies (skip flash-attn and vllm for separate install)
+RUN grep -v "flash-attn" requirements.txt | grep -v "vllm" | grep -v "^--" > requirements_temp.txt && \
     pip install --no-cache-dir -r requirements_temp.txt && \
     rm requirements_temp.txt
+
+# Install vLLM nightly - MUST use this exact command for DeepSeek-OCR
+RUN pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
 
 # Install flash-attn with proper CUDA setup
 ENV CUDA_HOME=/usr/local/cuda

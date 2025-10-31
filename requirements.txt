@@ -14,3 +14,7 @@ easydict
 beautifulsoup4
 matplotlib
 flash-attn==2.7.3
+# vLLM nightly for DeepSeek-OCR support (installed separately in Dockerfile)
+--pre
+--extra-index-url https://wheels.vllm.ai/nightly
+vllm
