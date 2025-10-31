@@ -234,8 +234,10 @@ class OCRService:
         
         print(f"Loading DeepSeek-OCR vLLM on {self.device}...")
         
+        # Import NGramPerReqLogitsProcessor for DeepSeek-OCR
+        from vllm.model_executor.models.deepseek_ocr import NGramPerReqLogitsProcessor
+        
         # Initialize vLLM with DeepSeek-OCR specific configuration
-        # Note: vLLM should automatically register NGramPerReqLogitsProcessor for DeepSeek-OCR
         self.llm = LLM(
             model=self.model_name,
             enable_prefix_caching=False,
@@ -243,6 +245,7 @@ class OCRService:
             trust_remote_code=True,
             gpu_memory_utilization=0.9,  # Use 90% of GPU memory
             max_model_len=8192,
+            logits_processors=[NGramPerReqLogitsProcessor],  # Required for DeepSeek-OCR
         )
         print("vLLM initialized successfully")
     
@@ -289,12 +292,17 @@ class OCRService:
             "multi_modal_data": {"image": image}
         }
         
-        # DeepSeek-OCR sampling configuration
-        # NGram parameters are handled by the registered logits processor
+        # DeepSeek-OCR sampling configuration with NGram parameters
         sampling_params = SamplingParams(
             temperature=0.0,
             max_tokens=8192,
             skip_special_tokens=False,
+            # NGram logits processor configuration
+            extra_args=dict(
+                ngram_size=30,
+                window_size=90,
+                whitelist_token_ids={128821, 128822},  # whitelist: <td>, </td>
+            ),
         )
         
         # Run generation
